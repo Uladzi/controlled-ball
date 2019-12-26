@@ -16,6 +16,7 @@ const circle = function(x, y, radius, fillCircle) {
 const Ball = function() {
     this.x = width / 2;
     this.y = height / 2;
+    this.size = 10;
     this.xSpeed = 1;
     this.ySpeed = 0;
     this.speed = 1;
@@ -24,36 +25,48 @@ Ball.prototype.move = function() {
     this.x += this.xSpeed;
     this.y += this.ySpeed;
 
-    if (this.x <= 0 || this.x >= width) {
+    if (this.x < 0 || this.x > width) {
         this.xSpeed = -this.xSpeed;
-    } else if (this.y <= 0 || this.y >= height) {
+    } else if (this.y < 0 || this.y > height) {
         this.ySpeed = -this.ySpeed;
     }
 };
 Ball.prototype.draw = function() {
-    circle(this.x, this.y, 10, true);
+    circle(this.x, this.y, this.size, true);
 };
-Ball.prototype.setDirection = function(direction) {
-    if (direction === 'up') {
+Ball.prototype.doAction = function(action) {
+    if (action === 'up') {
         this.xSpeed = 0;
         this.ySpeed = -this.speed;
-    } else if (direction === 'down') {
+    } else if (action === 'down') {
         this.xSpeed = 0;
         this.ySpeed = this.speed;
-    } else if (direction === 'left') {
+    } else if (action === 'left') {
         this.xSpeed = -this.speed;
         this.ySpeed = 0;
-    } else if (direction === 'right') {
+    } else if (action === 'right') {
         this.xSpeed = this.speed;
         this.ySpeed = 0;
-    } else if (direction === 'stop') {
+    } else if (action === 'stop') {
         this.xSpeed = 0;
         this.ySpeed = 0;
     }
-};
-Ball.prototype.setSpeed = function(newSpeed) {
-    if (newSpeed > 0 && newSpeed < 10) {
-        this.speed = newSpeed;
+    if (action > 0 && action < 10) {
+        this.speed = action;
+    } else if (action === 'slower') {
+        if (this.speed > 0) {
+            this.speed--;
+        }
+    } else if (action === 'faster') {
+        this.speed++;
+    } else if (this.speed < 0) {
+        this.speed = 0;
+    } else if (action === 'larger') {
+        this.size++;
+    } else if (action === 'smaller') {
+        if (this.size > 0) {
+            this.size--;
+        }
     }
 };
 
@@ -65,9 +78,6 @@ const keyActions = {
     38: 'up',
     39: 'right',
     40: 'down',
-};
-
-const speeds = {
     49: 1,
     50: 2,
     51: 3,
@@ -77,13 +87,16 @@ const speeds = {
     55: 7,
     56: 8,
     57: 9,
+    67: 'smaller',
+    86: 'larger',
+    88: 'faster',
+    90: 'slower',
 };
 
+
 $('body').keydown(function(event) {
-    const direction = keyActions[event.keyCode];
-    const newSpeed = speeds[event.keyCode];
-    ball.setDirection(direction);
-    ball.setSpeed(newSpeed);
+    const action = keyActions[event.keyCode];
+    ball.doAction(action);
 });
 
 setInterval(function() {
